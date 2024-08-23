@@ -1,0 +1,156 @@
+//------------------------------------------------
+//--- 010 Editor v14.0.1 Binary Template
+//
+//      File: mesh.bt
+//   Authors: Tyloth (Cyno Studios)
+//   Version: 0.1
+//   Purpose: Mesh files for Sins of A Solar Empire 2
+//  Category: Game
+// File Mask: *.mesh
+//  ID Bytes:
+//   History:
+//------------------------------------------------
+
+local int DEBUG_MODE = false;
+
+typedef struct {
+    char header[4];
+} Header <bgcolor=cAqua>;
+
+typedef struct {
+    float       x;
+    float       y;
+    float       z;
+} Vector3f;
+
+typedef struct {
+    float      x;
+    float      y;
+} Vector2f;
+
+typedef struct {
+    float      x;
+    float      y;
+    float      z;
+    float      w;
+} Vector4f;
+
+typedef struct {
+    Vector3f    x;
+    Vector3f    y;
+    Vector3f    z;
+} Rotation;
+
+typedef struct {
+    Vector3f    center;
+    Vector3f    extents;
+} BoundingBox;
+
+typedef struct {
+    Vector3f    center;
+    float       radius;
+} BoundingSphere;
+
+typedef struct {
+    Vector3f    position;
+    Vector3f    normals;
+    Vector4f    tangents;
+    Vector2f    uv0;
+    byte        padding;
+
+    if (DEBUG_MODE) {   // Slow
+        Printf("    Vertex: {\n");
+        Printf("        position: { x: [ %f, y: %f, z: %f ] }\n",
+         position.x, position.y, position.z);
+        Printf("        normals: { x: [ %f, y: %f, z: %f ] }\n",
+         normals.x, normals.y, normals.z);
+        Printf("        tangents: { x: [ %f, y: %f, z: %f ] }\n",
+         tangents.x, tangents.y, tangents.z);
+        Printf("        uv0: { x: [ %f, y: %f ]}\n",
+         uv0.x, uv0.y);
+        if (padding == 0x01) {
+            Vector2f uv1;
+            Printf("        uv1: { x: [ %f, y: %f ]}\n", uv1.x, uv1.y);
+        }
+        Printf("    }\n");
+    }
+
+} VertexData <optimize=false>;
+
+typedef struct {
+    int         len <hidden=true>;
+    DWORD       key <hidden=true>;
+    Printf("Vertices: %i {\n", len);
+        VertexData  vertex[len];
+    Printf("}");
+} Vertices;
+
+typedef struct {
+    int         len <hidden=true>;
+    DWORD       key <hidden=true>;
+    if (len == 0) { Printf("Skinned vertices not found.\n"); }
+} SkinnedVertices;
+
+typedef struct {
+    int         len <hidden=true>;
+    DWORD       array_begin <hidden=true>;
+    int         index[len];
+} VertexIndices;
+
+typedef struct {
+    int         len <hidden=true>;
+    DWORD       skip <hidden=true>;
+    struct {
+        ushort  material_index;
+        uint32  vertex_index_start;
+        uint32  vertex_index_count;
+    } primitive[len];
+} Primitives;
+
+typedef struct {
+    int         len <hidden=true>;
+    DWORD       skip <hidden=true>;
+    struct {
+        int         len <hidden=true>;
+        char        name[len];
+        Vector3f    position;
+        Rotation    rotation;
+        ushort      bone_index;
+    } mesh_point[len] <optimize=false>;
+} Meshpoints;
+
+typedef struct {
+    int         len <hidden=true>;
+    DWORD       skip <hidden=true>;
+    struct {
+        int     len <hidden=true>;
+        char    name[len];
+        ushort  base_pose[16];
+    } bone[len];
+} Bones;
+
+typedef struct {
+    int         len <hidden=true>;
+    DWORD       skip <hidden=true>;
+    struct {
+        int     len <hidden=true>;
+        char    name[len];
+    } material[len] <optimize=false>;
+    byte        padding <hidden=true>;
+} Materials;
+
+typedef struct {
+   Header header;
+   byte is_skinned<bgcolor=cWhite>;
+   BoundingBox bounding_box<bgcolor=cRed>;
+   BoundingSphere bounding_sphere<bgcolor=cLtRed>;
+   SkinnedVertices skinned_vertices<bgcolor=cLtAqua>;
+   Vertices vertices<bgcolor=cPurple>;
+   VertexIndices vertex_indices<bgcolor=cDkPurple>;
+   Primitives primitives<bgcolor=cSilver>;
+   Meshpoints mesh_points<bgcolor=cBlue>;
+   Bones bones<bgcolor=cGreen>;
+   Materials materials<bgcolor=cDkRed>;
+} MeshData;
+
+MeshData mesh;
