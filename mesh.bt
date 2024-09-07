@@ -57,24 +57,9 @@ typedef struct {
     Vector4f    tangents;
     Vector2f    uv0;
     byte        padding;
-
-    if (DEBUG_MODE) {   // Slow
-        Printf("    Vertex: {\n");
-        Printf("        position: { x: [ %f, y: %f, z: %f ] }\n",
-         position.x, position.y, position.z);
-        Printf("        normals: { x: [ %f, y: %f, z: %f ] }\n",
-         normals.x, normals.y, normals.z);
-        Printf("        tangents: { x: [ %f, y: %f, z: %f ] }\n",
-         tangents.x, tangents.y, tangents.z);
-        Printf("        uv0: { x: [ %f, y: %f ]}\n",
-         uv0.x, uv0.y);
-        if (padding == 0x01) {
-            Vector2f uv1;
-            Printf("        uv1: { x: [ %f, y: %f ]}\n", uv1.x, uv1.y);
-        }
-        Printf("    }\n");
+    if (padding == 0x01) {
+        Vector2f uv1;
     }
-
 } VertexData <optimize=false>;
 
 typedef struct {
