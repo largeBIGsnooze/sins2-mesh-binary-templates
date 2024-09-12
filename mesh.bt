@@ -1,15 +1,17 @@
 //------------------------------------------------
 //--- 010 Editor v14.0.1 Binary Template
 //
-//      File: mesh.bt
+//      File: MESH.bt
 //   Authors: Tyloth (Cyno Studios)
 //   Version: 0.1
-//   Purpose: Mesh files for Sins of A Solar Empire 2
+//   Purpose: Parse Sins II .mesh files
 //  Category: Game
 // File Mask: *.mesh
 //  ID Bytes:
 //   History:
 //------------------------------------------------
+
+local int DEBUG_MODE = false;
 
 typedef struct {
     char header[4];
@@ -42,12 +44,17 @@ typedef struct {
 typedef struct {
     Vector3f    center;
     Vector3f    extents;
-} BoundingBox;
+} BoundingBox <optimize=false>;
 
 typedef struct {
     Vector3f    center;
     float       radius;
 } BoundingSphere;
+
+typedef struct {
+    float       u;
+    float       v;
+} UV;
 
 typedef struct {
     Vector3f    position;
@@ -58,25 +65,28 @@ typedef struct {
     if (padding == 0x01) {
         Vector2f uv1;
     }
+
 } VertexData <optimize=false>;
 
 typedef struct {
-    int         len <hidden=true>;
+    int         count <hidden=true>;
     DWORD       key <hidden=true>;
-    VertexData  vertex[len];
-} Vertices;
+    Printf("Vertices: %i {\n", count);
+        VertexData  vertices[count];
+    Printf("}");
+} NonskinnedVertices <optimize=false>;
 
 typedef struct {
-    int         len <hidden=true>;
+    int         count <hidden=true>;
     DWORD       key <hidden=true>;
-    if (len == 0) { Printf("Skinned vertices not found.\n"); }
+    if (count == 0) { Printf("Skinned vertices not found.\n"); }
 } SkinnedVertices;
 
 typedef struct {
-    int         len <hidden=true>;
+    int         length <hidden=true>;
     DWORD       array_begin <hidden=true>;
-    int         index[len];
-} VertexIndices;
+    int         index[length];
+} VertexIndices <optimize=false>;
 
 typedef struct {
     int         len <hidden=true>;
@@ -86,7 +96,7 @@ typedef struct {
         uint32  vertex_index_start;
         uint32  vertex_index_count;
     } primitive[len];
-} Primitives;
+} Primitives <optimize=false>;
 
 typedef struct {
     int         len <hidden=true>;
@@ -117,8 +127,76 @@ typedef struct {
         int     len <hidden=true>;
         char    name[len];
     } material[len] <optimize=false>;
-    byte        padding <hidden=true>;
+    byte        padding ;
 } Materials;
+
+typedef struct {
+    int x;
+    DWORD skip <hidden=true>;
+    int y;
+} GridSize;
+
+typedef struct {
+    int len <hidden=true>;
+    struct {
+        DWORD skip <hidden=true>;
+        int value;
+    } values[len];
+} VertexIndexIndices;
+
+typedef struct {
+    int len;
+    DWORD skip <hidden=true>;
+    struct {
+        int x;
+        DWORD skip <hidden=true>;
+        int y;
+        DWORD skip <hidden=true>;
+    } coords[len];
+} NonEmptyGridCoords;
+
+typedef struct {
+    int x;
+    DWORD skip <hidden=true>;
+    int y;
+    DWORD skip <hidden=true>;
+    VertexIndexIndices loose_triangle_vertex_index_indices;
+    DWORD skip <hidden=true>;
+    VertexIndexIndices non_overlapped_triangle_vertex_index_indices;
+    DWORD skip <hidden=true>;
+} TriangleFacingValues <optimize=false>;
+
+typedef struct {
+    GridSize grid_size;
+    DWORD skip <hidden=true>;
+    int len <hidden=true>;
+    DWORD skip <hidden=true>;
+    TriangleFacingValues values[len];
+    NonEmptyGridCoords non_empty_grid_coords_x;
+    NonEmptyGridCoords non_empty_grid_coords_y;
+} Direction <optimize=false>;
+
+typedef struct {
+    Direction up;
+    Direction down;
+    Direction left;
+    Direction right;
+    Direction front;
+    Direction back;
+} Triangle_Facing_Datas <optimize=false>;
+
+typedef struct {
+    byte has_fat_vertices <hidden=true>;
+    if (has_fat_vertices == 0x01) {
+        int len <hidden=true>;
+        struct {
+            DWORD skip <hidden=true>;
+            int value;
+        } index[len];
+        DWORD skip <hidden=true>;
+    }
+} FatTriangleVertexIndexIndices;
+
 
 typedef struct {
    Header header;
@@ -126,12 +204,14 @@ typedef struct {
    BoundingBox bounding_box<bgcolor=cRed>;
    BoundingSphere bounding_sphere<bgcolor=cLtRed>;
    SkinnedVertices skinned_vertices<bgcolor=cLtAqua>;
-   Vertices vertices<bgcolor=cPurple>;
+   NonskinnedVertices non_skinned_vertices<bgcolor=cPurple>;
    VertexIndices vertex_indices<bgcolor=cDkPurple>;
    Primitives primitives<bgcolor=cSilver>;
    Meshpoints mesh_points<bgcolor=cBlue>;
    Bones bones<bgcolor=cGreen>;
    Materials materials<bgcolor=cDkRed>;
+   Triangle_Facing_Datas triangle_facing_datas <bgcolor=0x00FFFF>;
+   FatTriangleVertexIndexIndices fat_triangle_vertex_index_indices <bgcolor=0xFF8F8F>;
 } MeshData;
 
 MeshData mesh;
