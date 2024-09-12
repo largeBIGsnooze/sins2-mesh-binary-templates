@@ -117,6 +117,74 @@ struct Materials {
     u8 skip2 [[hidden]];
 };
 
+struct GridSize {
+    u32 x;
+    u32 skip [[hidden]];
+    u32 y;
+};
+
+struct VertexIndice {
+    u32 skip [[hidden]];
+    u32 value;
+};
+
+struct VertexIndexIndices {
+    u32 len [[hidden]];
+    VertexIndice values[len];
+};
+
+struct TriangleFacingValues {
+    u32 x;
+    u32 skip [[hidden]];
+    u32 y;
+    u32 skip2 [[hidden]];
+    VertexIndexIndices loose_triangle_vertex_index_indices;
+    u32 skip3 [[hidden]];
+    VertexIndexIndices non_overlapped_triangle_vertex_index_indices;
+    u32 skip4 [[hidden]];
+};
+
+struct Coord {
+    u32 x;
+    u32 skip [[hidden]];
+    u32 y;
+    u32 skip2 [[hidden]];
+};
+
+struct NonEmptyGridCoords {
+    u32 len;
+    u32 skip [[hidden]];
+    Coord coord[len];
+};
+
+struct Direction {
+    GridSize grid_size;
+    u32 skip [[hidden]];
+    u32 len [[hidden]];
+    u32 skip2 [[hidden]];
+    TriangleFacingValues values[len];
+    NonEmptyGridCoords non_empty_grid_coords_x;
+    NonEmptyGridCoords non_empty_grid_coords_y;
+};
+
+struct Triangle_Facing_Datas {
+    Direction up;
+    Direction down;
+    Direction left;
+    Direction right;
+    Direction front;
+    Direction back;
+};
+
+struct FatTriangleVertexIndexIndices {
+    u8 has_fat_vertices [[hidden]];
+    if (has_fat_vertices == 0x01) {
+        u32 len [[hidden]];
+        VertexIndice index[len];
+    }
+    u32 skip [[hidden]];
+};
+
 struct MeshData {
     Header header;
     u8 is_skinned;
@@ -127,8 +195,10 @@ struct MeshData {
     VertexIndices vertex_indices [[color("00FFFF")]];
     Primitives primitives [[color("F72282")]];
     Meshpoints mesh_points [[color("330099")]];
-    Bones bones;
-    Materials materials [[color("7F82D3")]];
+    Bones bones [[color("609530")]];
+    Materials materials [[color("FFFFFF")]];
+    Triangle_Facing_Datas triangle_facing_datas [[color("FF0000")]];
+    FatTriangleVertexIndexIndices fat_triangle_vertex_index_indices [[color("F88F8F")]];
 };
 
 fn format_vector3f(Vector3f vec) {

@@ -11,8 +11,6 @@
 //   History:
 //------------------------------------------------
 
-local int DEBUG_MODE = false;
-
 typedef struct {
     char header[4];
 } Header <bgcolor=cAqua>;
@@ -65,9 +63,7 @@ typedef struct {
 typedef struct {
     int         len <hidden=true>;
     DWORD       key <hidden=true>;
-    Printf("Vertices: %i {\n", len);
-        VertexData  vertex[len];
-    Printf("}");
+    VertexData  vertex[len];
 } Vertices;
 
 typedef struct {
